@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+export GIT_AUTH_USERS="./testdir/users"
+export GIT_AUTH_REPOS="./testdir/repos"
+
+export SSH_ORIGINAL_COMMAND="create test"
+git-auth-shell me

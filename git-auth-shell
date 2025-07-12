@@ -9,6 +9,11 @@ GITUSER="$1"
 # utils
 # ---------------------------------------------------------
 
+function ensure_paths() {
+  mkdir -p "$USERS"
+  mkdir -p "$REPOS"
+}
+
 function ensure_user() {
   if [[ ! -d "${USERS}/${GITUSER}" ]]; then
     mkdir "${USERS}/${GITUSER}"
@@ -226,6 +231,47 @@ function revoke_write () {
 
 # =========================================================
 
+ensure_paths
+ensure_user
 
+cmd_array=($SSH_ORIGINAL_COMMAND)
+echo "DEBUG: ${SSH_ORIGINAL_COMMAND}"
 
+cmd_word="${cmd_array[0]}"
+if [[ "$cmd_word" == "create" ]]; then
+  create_repo "${cmd_array[1]}"
+elif [[ "$cmd_word" == "rename" ]]; then
+  rename_repo "${cmd_array[1]}" "${cmd_array[2]}"
+elif [[ "$cmd_word" == "delete" ]]; then
+  delete_repo "${cmd_array[1]}" "${cmd_array[2]}"
+elif [[ "$cmd_word" == "list-admin" ]]; then
+  list_admin
+elif [[ "$cmd_word" == "list-write" ]]; then
+  list_write
+elif [[ "$cmd_word" == "list-admins" ]]; then
+  list_admins "${cmd_array[1]}"
+elif [[ "$cmd_word" == "list-writers" ]]; then
+  list_writers "${cmd_array[1]}"
+elif [[ "$cmd_word" == "grant-admin" ]]; then
+  grant_admin "${cmd_array[1]}" "${cmd_array[2]}"
+elif [[ "$cmd_word" == "grant-write" ]]; then
+  grant_write "${cmd_array[1]}" "${cmd_array[2]}"
+elif [[ "$cmd_word" == "revoke-admin" ]]; then
+  revoke_admin "${cmd_array[1]}" "${cmd_array[2]}"
+elif [[ "$cmd_word" == "revoke-write" ]]; then
+  revoke_write "${cmd_array[1]}" "${cmd_array[2]}"
 
+elif [[ "$cmd_word" == "git" ]]; then
+  if [[ "${cmd_array[2]}" == "upload-pack" ]]; then
+    if ! is_user_writer "${cmd_array[3]}"; then
+      echo "User doesn't have write permissions for this repo."
+      exit 1
+    fi
+  elif [[ "${cmd_array[2]}" == "upload-archive" ]]; then
+    if ! is_user_writer "${cmd_array[3]}"; then
+      echo "User doesn't have write permissions for this repo."
+      exit 1
+    fi
+  fi
+  git-shell -c "${cmd_array[@]:1}"
+fi
