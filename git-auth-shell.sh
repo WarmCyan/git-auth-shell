@@ -254,7 +254,8 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-# echo "DEBUG: ${SSH_ORIGINAL_COMMAND}"
+echo "DEBUG: ${SSH_ORIGINAL_COMMAND}"
+exit 1
 
 cmd_word="${cmd_array[0]}"
 if [[ "$cmd_word" == "create" ]]; then
