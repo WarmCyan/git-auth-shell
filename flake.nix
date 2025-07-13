@@ -23,7 +23,7 @@
 
         # Equivalent to  inputs'.nixpkgs.legacyPackages.hello;
         # https://ertt.ca/nix/shell-scripts/
-        packages.default = self.packages.git-auth-shell;
+        packages.default = self'.packages.git-auth-shell;
         packages.git-auth-shell =
           let
             inherit pkgs;
