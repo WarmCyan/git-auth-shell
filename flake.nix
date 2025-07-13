@@ -26,7 +26,7 @@
         packages.default = self'.packages.git-auth-shell;
         packages.git-auth-shell =
           let
-            inherit pkgs;
+            pkgs = import pkgs { system = system; };
             script = pkgs.writeShellScriptBin "git-auth-shell" (builtins.readFile ./git-auth-shell.sh);
           in pkgs.symlinkJoin {
             name = "git-auth-shell";
