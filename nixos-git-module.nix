@@ -21,7 +21,7 @@ in {
       description = "Git repositories for use by minimal git server.";
       packages = [
         pkgs.git
-        self.packages.${pkgs.system}.git-auth-shell;
+        self.packages.${pkgs.system}.git-auth-shell
       ];
       
       openssh.authorizedKeys.keys = builtins.attrValues (builtins.mapAttrs (name: keylist: 
