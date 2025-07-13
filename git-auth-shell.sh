@@ -254,8 +254,8 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-# echo "${SSH_ORIGINAL_COMMAND}"
-echo "${cmd_array[3]}"
+echo "${GITUSER}: ${SSH_ORIGINAL_COMMAND}" >> "${HOME}/commands.log"
+# echo "${cmd_array[3]}"
 
 cmd_word="${cmd_array[0]}"
 if [[ "$cmd_word" == "create" ]]; then
