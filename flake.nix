@@ -11,7 +11,6 @@
     flake-parts.lib.mkFlake { inherit inputs; } ({ withSystem, flake-parts-lib, ... }:
     let
       inherit (flake-parts-lib) importApply;
-      flakeModules.default = importApply ./nixos-git-module.nix { inherit withSystem; };
     in
     {
       imports = [
@@ -19,10 +18,12 @@
         # 1. Add foo to inputs
         # 2. Add foo as a parameter to the outputs function
         # 3. Add here: foo.flakeModule
-        
+
         # https://flake.parts/overlays.html
         inputs.flake-parts.flakeModules.easyOverlay
       ];
+
+
       systems = [ "x86_64-linux" "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
         # Per-system attributes can be defined here. The self' and inputs'
@@ -55,6 +56,7 @@
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
 
+        nixosModules.default = importApply ./nixos-git-module.nix { inherit withSystem; };
       };
     });
 }
