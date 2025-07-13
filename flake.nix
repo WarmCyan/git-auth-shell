@@ -26,8 +26,8 @@
       });
   
     nixosModules = {
-      simple-git-server = import ./nixos-git-module.nix self;
-      default = self.nixosModules.simple-git-server;
+      git-server = import ./nixos-git-module.nix self;
+      default = self.nixosModules.git-server;
     };
   };
 }
