@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 USERS=${GIT_AUTH_USERS-${HOME}/gitusers}
-REPOS=${GIT_AUTH_REPOS-${HOME}/repos}
+REPOS=${GIT_AUTH_REPOS-${HOME}/gitrepos}
 
 GITUSER="$1"
 
@@ -82,10 +82,10 @@ function rename_repo () {
 
   # update any permissions files
   IFS=$'\n'
-  for user in list_writers "$repo"; do
+  for user in $(list_writers "$repo"); do
     sed -i -e "s/^${repo}$/${newrepo}/g" "${USERS}/${user}/write"
   done
-  for user in list_admins "$repo"; do
+  for user in $(list_admins "$repo"); do
     sed -i -e "s/^${repo}$/${newrepo}/g" "${USERS}/${user}/admin"
   done
 
@@ -104,6 +104,16 @@ function delete_repo () {
   fi
 
   rm -rf "${REPOS:?}/${repo}"
+
+  # update any permissions files
+  IFS=$'\n'
+  for user in $(list_writers "$repo"); do
+    sed -i "/^${repo}$/d" "${USERS}/${user}/write"
+  done
+  for user in $(list_admins "$repo"); do
+    sed -i "/^${repo}$/d" "${USERS}/${user}/admin"
+  done
+
   echo "Deleted repo $repo"
 }
 
@@ -140,9 +150,13 @@ function list_writers () {
     exit 1
   fi
 
-  for user_dir in $(find "${USERS}" -mindepth 1 -maxdepth 1 -type d); do
+  pushd "${USERS}" > /dev/null
+  IFS=$'\n'
+  # printf to remove prefix ./
+  for user_dir in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%P\n'); do
     grep -q "^${repo}\$" < "${user_dir}/write" && echo "${user_dir}"
   done;
+  popd > /dev/null
 }
 
 # list all users with admin permissions for specified repo
@@ -156,9 +170,13 @@ function list_admins () {
     exit 1
   fi
 
-  for user_dir in $(find "${USERS}" -mindepth 1 -maxdepth 1 -type d); do
+  pushd "${USERS}" > /dev/null
+  IFS=$'\n'
+  # printf to remove prefix ./
+  for user_dir in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%P\n'); do
     grep -q "^${repo}\$" < "${user_dir}/admin" && echo "${user_dir}"
   done;
+  popd > /dev/null
 }
 
 # ---------------------------------------------------------
@@ -178,6 +196,7 @@ function grant_admin () {
   fi
 
   echo "$repo" >> "${USERS}/${user}/admin"
+  echo "$repo" >> "${USERS}/${user}/write"
   echo "Admin permissions granted to $user for $repo"
 }
 
