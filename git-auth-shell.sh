@@ -282,18 +282,20 @@ elif [[ "$cmd_word" == "revoke-write" ]]; then
   revoke_write "${cmd_array[1]}" "${cmd_array[2]}"
 
 elif [[ "$cmd_word" == "git" ]]; then
-  if [[ "${cmd_array[2]}" == "upload-pack" ]]; then
-    if ! is_user_writer "${cmd_array[3]}"; then
-      echo "User doesn't have write permissions for this repo."
-      exit 1
-    fi
-  elif [[ "${cmd_array[2]}" == "upload-archive" ]]; then
+  if [[ "${cmd_array[2]}" == "receive-pack" ]]; then
     if ! is_user_writer "${cmd_array[3]}"; then
       echo "User doesn't have write permissions for this repo."
       exit 1
     fi
   fi
+  # elif [[ "${cmd_array[2]}" == "upload-archive" ]]; then
+  #   if ! is_user_writer "${cmd_array[3]}"; then
+  #     echo "User doesn't have write permissions for this repo."
+  #     exit 1
+  #   fi
+  # fi
   pushd "${REPOS}" > /dev/null
+  echo -e "\t$(pwd)" >> "${HOME}/git-commands.log"
   git-shell -c "${cmd_array[@]:1}"
   popd > /dev/null
 fi
