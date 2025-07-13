@@ -13,7 +13,11 @@
         # 1. Add foo to inputs
         # 2. Add foo as a parameter to the outputs function
         # 3. Add here: foo.flakeModule
-
+        
+        # https://flake.parts/overlays.html
+        imports = [
+          inputs.flake-parts.flakeModules.easyOverlay
+        ];
       ];
       systems = [ "x86_64-linux" "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
@@ -34,6 +38,13 @@
             buildInputs = [ pkgs.makeWrapper ];
             postBuid = "wrapProgram $out/bin/git-auth-shell --prefix PATH : $out/bin";
           };
+
+        # add git-auth-shell into packages overlay, should make it easier to
+        # import where this flake is used?
+        # https://flake.parts/overlays.html
+        overlayAttrs = {
+          inherit (config.packages) git-auth-shell;
+        };
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
