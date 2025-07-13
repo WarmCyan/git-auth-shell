@@ -10,7 +10,7 @@ in {
       default = "git";
     };
     userSSHKeys = mkOption {
-      type = types.attrsOf types.listOf types.str;
+      type = types.attrsOf (types.listOf types.str);
       default = { };
     };
   };
