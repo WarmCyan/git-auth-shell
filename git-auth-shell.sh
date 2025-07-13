@@ -296,6 +296,6 @@ elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" ||
   # fi
   pushd "${REPOS}" > /dev/null
   echo -e "\t$(pwd)" >> "${HOME}/git-commands.log"
-  git-shell -c "${cmd_array[@]}"
+  git-shell -c "${SSH_ORIGINAL_COMMAND}"
   popd > /dev/null
 fi
