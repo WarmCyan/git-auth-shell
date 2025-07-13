@@ -254,7 +254,7 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-echo "${GITUSER}: ${SSH_ORIGINAL_COMMAND}" >> "${HOME}/commands.log"
+echo "${GITUSER}: ${SSH_ORIGINAL_COMMAND}" >> "${HOME}/git-commands.log"
 # echo "${cmd_array[3]}"
 
 cmd_word="${cmd_array[0]}"
@@ -293,5 +293,7 @@ elif [[ "$cmd_word" == "git" ]]; then
       exit 1
     fi
   fi
+  pushd "${REPOS}" > /dev/null
   git-shell -c "${cmd_array[@]:1}"
+  popd > /dev/null
 fi
