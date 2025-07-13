@@ -5,6 +5,8 @@ REPOS=${GIT_AUTH_REPOS-${HOME}/gitrepos}
 
 GITUSER="$1"
 
+LOGLOC=${GIT_AUTH_LOG-${HOME}/gitlog.log}
+
 # ---------------------------------------------------------
 # utils
 # ---------------------------------------------------------
@@ -46,6 +48,15 @@ function help () {
   echo "not implemented"
 }
 
+function log () {
+  echo "$(date +%D-%T):${GITUSER}:$1" >> "$LOGLOC"
+}
+
+function logecho () {
+  echo -e "\t$1" >> "$LOGLOC"
+  echo "$1"
+}
+
 # ---------------------------------------------------------
 # Repo folder commands
 # ---------------------------------------------------------
@@ -55,7 +66,7 @@ function help () {
 function create_repo () {
   repo=$(sanitize_path "$1")
   if [[ -d "${REPOS}/${repo}" ]]; then
-    echo "Repo ${repo} already exists"
+    logecho "Repo ${repo} already exists"
     exit 1
   fi
 
@@ -64,7 +75,7 @@ function create_repo () {
   # add appropriate permissions
   echo "${repo}" >> "${USERS}/${GITUSER}/admin"
   echo "${repo}" >> "${USERS}/${GITUSER}/write"
-  echo "Created repo $repo"
+  logecho "Created repo $repo"
 }
 
 # move the repo folder (if you have admin)
@@ -73,7 +84,7 @@ function rename_repo () {
   repo=$(sanitize_path "$1")
 
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
@@ -89,7 +100,7 @@ function rename_repo () {
     sed -i -e "s/^${repo}$/${newrepo}/g" "${USERS}/${user}/admin"
   done
 
-  echo "Moved repo $repo to $newrepo"
+  logecho "Moved repo $repo to $newrepo"
 }
 
 # delete the repo folder
@@ -99,7 +110,7 @@ function delete_repo () {
   repo=$(sanitize_path "$1")
 
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
@@ -114,7 +125,7 @@ function delete_repo () {
     sed -i "/^${repo}$/d" "${USERS}/${user}/admin"
   done
 
-  echo "Deleted repo $repo"
+  logecho "Deleted repo $repo"
 }
 
 # ---------------------------------------------------------
@@ -146,7 +157,7 @@ function list_writers () {
   repo=$(sanitize_path "$1")
 
   if ! is_user_writer "$repo"; then
-    echo "Write permission required for this op on $repo"
+    logecho "Write permission required for this op on $repo"
     exit 1
   fi
 
@@ -166,7 +177,7 @@ function list_admins () {
   repo=$(sanitize_path "$1")
 
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
@@ -191,13 +202,13 @@ function grant_admin () {
   repo=$(sanitize_path "$2")
   
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
   echo "$repo" >> "${USERS}/${user}/admin"
   echo "$repo" >> "${USERS}/${user}/write"
-  echo "Admin permissions granted to $user for $repo"
+  logecho "Admin permissions granted to $user for $repo"
 }
 
 # add specified user with write permissons to specified repo
@@ -208,12 +219,12 @@ function grant_write () {
   repo=$(sanitize_path "$2")
   
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
   echo "$repo" >> "${USERS}/${user}/write"
-  echo "Write permissions granted to $user for $repo"
+  logecho "Write permissions granted to $user for $repo"
 }
 
 # remove specified user as an admin to specified repo
@@ -224,12 +235,12 @@ function revoke_admin () {
   repo=$(sanitize_path "$2")
   
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
   sed -i "/^${repo}$/d" "${USERS}/${user}/admin"
-  echo "Admin permissions removed from $repo for $user"
+  logecho "Admin permissions removed from $repo for $user"
 }
 
 # remove specified user with write permissions to specified repo
@@ -240,12 +251,12 @@ function revoke_write () {
   repo=$(sanitize_path "$2")
   
   if ! is_user_admin "$repo"; then
-    echo "Admin permission required for this op on $repo"
+    logecho "Admin permission required for this op on $repo"
     exit 1
   fi
 
   sed -i "/^${repo}$/d" "${USERS}/${user}/write"
-  echo "Write permissions removed from $repo for $user"
+  logecho "Write permissions removed from $repo for $user"
 }
 
 # =========================================================
@@ -254,7 +265,7 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-echo "$(date +%D-%T):${GITUSER}:${SSH_ORIGINAL_COMMAND}" >> "${HOME}/git-commands.log"
+log "$(date +%D-%T):${GITUSER}:${SSH_ORIGINAL_COMMAND}"
 # echo "${cmd_array[3]}"
 
 cmd_word="${cmd_array[0]}"
@@ -283,8 +294,8 @@ elif [[ "$cmd_word" == "revoke-write" ]]; then
 
 elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" || "$cmd_word" == "git-upload-archive" ]]; then
   if [[ "$cmd_word" == "git-receive-pack" ]]; then
-    if ! is_user_writer "${cmd_array[3]}"; then
-      echo "User doesn't have write permissions for this repo."
+    if ! is_user_writer "${cmd_array[2]}"; then
+      logecho "User doesn't have write permissions for this repo."
       exit 1
     fi
   fi
@@ -295,7 +306,6 @@ elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" ||
   #   fi
   # fi
   pushd "${REPOS}" > /dev/null
-  echo -e "\t$(pwd)" >> "${HOME}/git-commands.log"
   git-shell -c "${SSH_ORIGINAL_COMMAND}"
   popd > /dev/null
 fi
