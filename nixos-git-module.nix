@@ -25,7 +25,7 @@ in {
       ];
       
       openssh.authorizedKeys.keys = builtins.concatLists (builtins.attrValues (builtins.mapAttrs (name: keylist: 
-        builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell} ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\"" + x) keylist) cfg.userSSHKeys));
+        builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell} ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) cfg.userSSHKeys));
     };
   };
 }
