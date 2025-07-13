@@ -15,9 +15,7 @@
         # 3. Add here: foo.flakeModule
         
         # https://flake.parts/overlays.html
-        imports = [
-          inputs.flake-parts.flakeModules.easyOverlay
-        ];
+        inputs.flake-parts.flakeModules.easyOverlay
       ];
       systems = [ "x86_64-linux" "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
