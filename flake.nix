@@ -7,7 +7,13 @@
   };
 
   outputs = inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    # https://flake.parts/dogfood-a-reusable-module#example-with-importapply
+    flake-parts.lib.mkFlake { inherit inputs; } ({ withSystem, flake-parts-lib, ... }:
+    let
+      inherit (flake-parts-lib) importApply;
+      flakeModules.default = importApply ./nixos-git-module.nix { inherit withSystem; };
+    in
+    {
       imports = [
         # To import a flake module
         # 1. Add foo to inputs
@@ -50,5 +56,5 @@
         # those are more easily expressed in perSystem.
 
       };
-    };
+    });
 }
