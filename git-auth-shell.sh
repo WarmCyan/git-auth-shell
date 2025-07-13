@@ -294,7 +294,7 @@ elif [[ "$cmd_word" == "revoke-write" ]]; then
 
 elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" || "$cmd_word" == "git-upload-archive" ]]; then
   if [[ "$cmd_word" == "git-receive-pack" ]]; then
-    if ! is_user_writer "${cmd_array[2]}"; then
+    if ! is_user_writer "${cmd_array[1]}"; then
       logecho "User doesn't have write permissions for this repo."
       exit 1
     fi
