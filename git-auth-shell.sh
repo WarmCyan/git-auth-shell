@@ -59,7 +59,7 @@ function create_repo () {
     exit 1
   fi
 
-  git init --bare "${REPOS}/${repo}"
+  git init --bare --initial-branch=main "${REPOS}/${repo}"
  
   # add appropriate permissions
   echo "${repo}" >> "${USERS}/${GITUSER}/admin"
@@ -254,7 +254,7 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-echo "DEBUG: ${SSH_ORIGINAL_COMMAND}"
+# echo "DEBUG: ${SSH_ORIGINAL_COMMAND}"
 
 cmd_word="${cmd_array[0]}"
 if [[ "$cmd_word" == "create" ]]; then
