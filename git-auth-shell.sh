@@ -254,7 +254,7 @@ ensure_paths
 ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
-echo "${GITUSER}: ${SSH_ORIGINAL_COMMAND}" >> "${HOME}/git-commands.log"
+echo "$(date +%D-%T):${GITUSER}:${SSH_ORIGINAL_COMMAND}" >> "${HOME}/git-commands.log"
 # echo "${cmd_array[3]}"
 
 cmd_word="${cmd_array[0]}"
