@@ -59,7 +59,7 @@ in {
       settings = {
         source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
         about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
-        readme = [ "README.md" ];
+        readme = [ ":README.md" ":readme.md" ":README" ];
         # TODO: clone-prefix/clone-url?: https://git.zx2c4.com/cgit/tree/cgitrc.5.txt
         enable-blame = 1;
         enable-commit-graph = 1;
