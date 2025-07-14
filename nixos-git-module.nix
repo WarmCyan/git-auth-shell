@@ -4,7 +4,7 @@ let
   cfg = config.services.simple-git-server;
 in {
   options.services.simple-git-server = {
-    enable = mkEnableOption "Minimal git server" {;
+    enable = mkEnableOption "Minimal git server";
 
     git-user = mkOption {
       type = types.str;
