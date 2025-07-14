@@ -15,7 +15,7 @@ in {
     userSSHKeys = mkOption {
       type = types.attrsOf (types.listOf types.str);
       default = { };
-      description = "A dictionary of lists of SSH keys to place into the authorizedKeys list. The attributes/keys are the usernames, the corresponding lists are the set of keys to associate with that username."
+      description = "A dictionary of lists of SSH keys to place into the authorizedKeys list. The attributes/keys are the usernames, the corresponding lists are the set of keys to associate with that username.";
       example = lib.literalExpresion ''
         {
           my_username = [
