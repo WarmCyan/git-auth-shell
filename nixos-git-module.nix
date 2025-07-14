@@ -51,6 +51,7 @@ in {
         builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) cfg.userSSHKeys));
     };
 
+    # TODO: override cgit package post to copy in css/logo files
     services.cgit.simple-git-server = mkIf cfg.cgit.enable {
       #package
       enable = true;
@@ -59,7 +60,7 @@ in {
       settings = {
         source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
         about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
-        readme = [ ":README.md" ":readme.md" ":README" ];
+        readme = [ ":README.md" ":readme.md" ":README" ":readme" ":README.rst" ":readme.rst" ":README.txt" ":readme.txt" ];
         # TODO: clone-prefix/clone-url?: https://git.zx2c4.com/cgit/tree/cgitrc.5.txt
         enable-blame = 1;
         enable-commit-graph = 1;
