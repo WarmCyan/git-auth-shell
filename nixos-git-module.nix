@@ -62,6 +62,7 @@ in {
         readme = "README.md";
         enable-git-config = 1;
         enable-http-clone = 1;
+        cache = 1000;
       };
     };
   };
