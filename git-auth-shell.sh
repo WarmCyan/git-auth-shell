@@ -44,8 +44,21 @@ function sanitize_path() {
   echo "$safe_repo"
 }
 
-function help () {
-  echo "not implemented"
+function show_help () {
+  echo "Run any of the following commands with:"
+  echo -e "\tssh git@someip [command] [args...]"
+  echo -e "\nCommands:"
+  echo -e "\tcreate [repo]"
+  echo -e "\trename [repo] [newname]  # (requires admin)"
+  echo -e "\tdelete [repo] [newname]  # (requires admin)"
+  echo -e "\tlist-admin  # list all repos you have admin privileges for"
+  echo -e "\tlist-write  # list all repos you have write privileges for"
+  echo -e "\tlist-admins [repo]  # list all users with admin privileges for repo"
+  echo -e "\tlist-writers [repo]  # list all users with write privileges for repo"
+  echo -e "\tgrant-admin [user] [repo]  # give admin privileges to user for repo (requires admin)"
+  echo -e "\tgrant-write [user] [repo]  # give write privileges to user for repo (requires admin)"
+  echo -e "\trevoke-admin [user] [repo]  # remove admin privileges from user for repo (requires admin)"
+  echo -e "\trevoke-write [user] [repo]  # remove write privileges from user for repo (requires admin)"
 }
 
 function log () {
@@ -119,10 +132,10 @@ function delete_repo () {
   # update any permissions files
   IFS=$'\n'
   for user in $(list_writers "$repo"); do
-    sed -i "/^${repo}$/d" "${USERS}/${user}/write"
+    sed -i -e "/^${repo}$/d" "${USERS}/${user}/write"
   done
   for user in $(list_admins "$repo"); do
-    sed -i "/^${repo}$/d" "${USERS}/${user}/admin"
+    sed -i -e "/^${repo}$/d" "${USERS}/${user}/admin"
   done
 
   logecho "Deleted repo $repo"
@@ -266,10 +279,11 @@ ensure_user
 
 cmd_array=($SSH_ORIGINAL_COMMAND)
 log "$(date +%D-%T):${GITUSER}:${SSH_ORIGINAL_COMMAND}"
-# echo "${cmd_array[3]}"
 
 cmd_word="${cmd_array[0]}"
-if [[ "$cmd_word" == "create" ]]; then
+if [[ "$cmd_word" == "help" ]]; then
+  show_help
+elif [[ "$cmd_word" == "create" ]]; then
   create_repo "${cmd_array[1]}"
 elif [[ "$cmd_word" == "rename" ]]; then
   rename_repo "${cmd_array[1]}" "${cmd_array[2]}"
@@ -299,12 +313,6 @@ elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" ||
       exit 1
     fi
   fi
-  # elif [[ "${cmd_array[2]}" == "upload-archive" ]]; then
-  #   if ! is_user_writer "${cmd_array[3]}"; then
-  #     echo "User doesn't have write permissions for this repo."
-  #     exit 1
-  #   fi
-  # fi
   pushd "${REPOS}" > /dev/null
   git-shell -c "${SSH_ORIGINAL_COMMAND}"
   popd > /dev/null

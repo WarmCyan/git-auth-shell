@@ -13,6 +13,7 @@ function fail() {
 
 export GIT_AUTH_USERS="./testdir/users"
 export GIT_AUTH_REPOS="./testdir/repos"
+export GIT_AUTH_LOG="./tests.log"
 
 rm -rf testdir
 
