@@ -59,10 +59,17 @@ in {
       settings = {
         source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
         about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
-        readme = "README.md";
+        readme = [ "README.md" ];
+        # TODO: clone-prefix/clone-url?: https://git.zx2c4.com/cgit/tree/cgitrc.5.txt
+        enable-blame = 1;
+        enable-commit-graph = 1;
+        enable-follow-links = 1;
         enable-git-config = 1;
         enable-http-clone = 1;
-        cache = 1000;
+        enable-html-serving = 1;
+        cache = 100;
+        # TODO: header/footer/etc.
+        local-time = 1;
       };
     };
   };
