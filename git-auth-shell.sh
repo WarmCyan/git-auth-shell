@@ -2,10 +2,9 @@
 
 USERS=${GIT_AUTH_USERS-${HOME}/gitusers}
 REPOS=${GIT_AUTH_REPOS-${HOME}/gitrepos}
+LOGLOC=${GIT_AUTH_LOG-${HOME}/gitlog.log}
 
 GITUSER="$1"
-
-LOGLOC=${GIT_AUTH_LOG-${HOME}/gitlog.log}
 
 # ---------------------------------------------------------
 # utils
@@ -50,7 +49,7 @@ function show_help () {
   echo -e "\nCommands:"
   echo -e "\tcreate [repo]"
   echo -e "\trename [repo] [newname]  # (requires admin)"
-  echo -e "\tdelete [repo] [newname]  # (requires admin)"
+  echo -e "\tdelete [repo]  # (requires admin)"
   echo -e "\tlist-admin  # list all repos you have admin privileges for"
   echo -e "\tlist-write  # list all repos you have write privileges for"
   echo -e "\tlist-admins [repo]  # list all users with admin privileges for repo"
