@@ -1,6 +1,6 @@
 TODO: expand path sanitization (`, {, etc.)
 TODO: expand on readme
-TODO: custom cgit css/logo overrides
+STRT: custom cgit css/logo overrides
 TODO: license
 DONE: git-user -> gitUser
 TODO: ability to add new ssh-keys through command

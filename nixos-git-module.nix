@@ -2,6 +2,9 @@ self: { config, pkgs, lib, ... }:
 with lib;
 let
   cfg = config.services.small-git-server;
+
+  # based on https://github.com/NixOS/nixpkgs/blob/32a4e87942101f1c9f9865e04dc3ddb175f5f32e/nixos/modules/services/networking/cgit.nix#L91
+  mkCSSFile = cfg: pkgs.writeTextToFile "custom-cgit-theme.css" cfg.cgit.css;
 in {
   options.services.small-git-server = {
     enable = mkEnableOption "Minimal git server";
@@ -41,8 +44,6 @@ in {
       '';
     };
 
-    # based on https://github.com/NixOS/nixpkgs/blob/32a4e87942101f1c9f9865e04dc3ddb175f5f32e/nixos/modules/services/networking/cgit.nix#L91
-    mkCSSFile = cfg: pkgs.writeTextToFile "custom-cgit-theme.css" cfg.cgit.css;
 
     # TODO: cgit theme and logo file
     # https://discourse.nixos.org/t/is-it-possible-to-write-to-an-arbitrary-file-from-nix-config/61999
@@ -63,7 +64,7 @@ in {
 
     # TODO: override cgit package post to copy in css/logo files
     services.cgit.simple-git-server = mkIf cfg.cgit.enable {
-      #package
+      # https://discourse.nixos.org/t/adding-files-to-a-package/14626
       package = pkgs.buildEnv {
         name = "cgit-styled";
         paths = [ 
