@@ -1,3 +1,8 @@
+# nginx: any /assets/* goes through to assets folder, so assets folder needs to
+# be a builtEnv?
+
+
+
 self: { config, pkgs, lib, ... }:
 with lib;
 let
@@ -25,13 +30,18 @@ let
   # mk function in the let approach)
 
   # https://stackoverflow.com/questions/76242980/create-a-derivation-in-nix-to-only-copy-some-files
-  mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
+  # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
+  #   name = "cgit-assets";
+  #   src = cfg.cgit.assets;
+  #   installPhase = ''
+  #     mkdir -p $out/cgit
+  #     cp -r $src/* $out/cgit
+  #   '';
+  # };
+
+  mkAssets = cfg: symlinkJoin {
     name = "cgit-assets";
-    src = cfg.cgit.assets;
-    installPhase = ''
-      mkdir -p $out/cgit
-      cp -r $src/* $out/cgit
-    '';
+    paths = [ cfg.cgit.logo ] ++ cfg.cgit.css_files;
   };
 in {
   options.services.small-git-server = {
@@ -69,17 +79,30 @@ in {
       description = "A folder containing files for customizing cgit's appearance, e.g. css, logo, favicon, additional header/footer html etc. To use these files, ...";
     };
     cgit.css_files = mkOption {
-      type = types.listOf types.str;
-      default = [ "cgit.css" ];
+      type = types.listOf types.path;
+      # default = [ "cgit.css" ];
+      default = [ ];
+      # TODO: wrong
       example = lib.literalExpresion ''
         [ "cgit.css" "mycustomcss.css" ];
       '';
       description = "A list of string paths to css files within the small-git-server.cgit.assets folder. 'cgit.css' is the file that comes with cgit, include this one first to base styling off of the default cgit style.";
     };
-    cgit.logo_file = mkOption {
-      type = types.str;
-      default = "cgit.png";
+    cgit.logo = mkOption {
+      type = types.path;
+      # default = "cgit.png";
+      # TODO: wrong
       description = "Path within assets folder to the image to use in upper left of every page. Default that comes with cgit is 'cgit.png'";
+    };
+
+
+    cgit.noDefaultCSS = mkOption {
+      type = types.bool;
+      default = false;
+      description = "If true, don't include any of the default cgit css.";
+    };
+
+    cgit.extraSettings = mkOption {
     };
 
 
@@ -103,13 +126,14 @@ in {
     # TODO: override cgit package post to copy in css/logo files
     services.cgit.small-git-server = mkIf cfg.cgit.enable {
       # https://discourse.nixos.org/t/adding-files-to-a-package/14626
-      package = pkgs.buildEnv {
-        name = "cgit-styled";
-        paths = [
-          pkgs.cgit
-          (mkAssets cfg)
-        ];
-      };
+      # package = pkgs.buildEnv {
+      #   name = "cgit-styled";
+      #   paths = [
+      #     pkgs.cgit
+      #     (mkAssets cfg)
+      #   ];
+      # };
+      # package = 
 
       enable = true;
       user = "${cfg.gitUser}";
@@ -128,9 +152,14 @@ in {
         cache = 100;
         # TODO: header/footer/etc.
         # head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
-        css = builtins.map (x: "/" + x) cfg.cgit.css_files;
-        logo = "/${cfg.cgit.logo_file}";
+        css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files) ++ [ "/cgit.css" ];
+        logo = "/assets/${builtins.baseNameOf cfg.cgit.logo}";
         local-time = 1;
+      };
+    };
+    services.nginx.virtualHosts.small-git-server = {
+      locations."/assets/" = {
+        root = "${(mkAssets cfg)}";
       };
     };
   };
