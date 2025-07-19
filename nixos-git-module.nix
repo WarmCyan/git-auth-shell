@@ -14,7 +14,7 @@ let
     <style>
       ${cfg.cgit.css};
     </style>
-    ''
+    '';
     destination = "/cgit/custom-cgit-theme.html";
   };
 in {
