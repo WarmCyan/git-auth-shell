@@ -90,7 +90,7 @@ in {
         enable-html-serving = 1;
         cache = 100;
         # TODO: header/footer/etc.
-        head-include = "${mkCSSFile cfg}";
+        head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.css";
         local-time = 1;
       };
     };
