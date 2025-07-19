@@ -69,7 +69,7 @@ in
         );
     };
 
-    services.cgit.${cgitAttrName} = lib.mkIf cfg.cgit.enable {
+    services.cgit.${cfg.cgitAttrName} = lib.mkIf cfg.cgit.enable {
       enable = true;
       user = "${cfg.gitUser}";
       scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
@@ -89,6 +89,6 @@ in
       };
     };
 
-    services.cgit-theme.${cgitAttrName} = lib.mkIf cfg.cgit.enable cfg.cgit;
+    services.cgit-theme.${cfg.cgitAttrName} = lib.mkIf cfg.cgit.enable cfg.cgit;
   };
 }
