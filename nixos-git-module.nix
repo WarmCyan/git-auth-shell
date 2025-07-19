@@ -1,6 +1,17 @@
 # nginx: any /assets/* goes through to assets folder, so assets folder needs to
 # be a builtEnv?
 
+# BUG: in cgit you apparently can't _actually_ specify more than one css file,
+# their docs lie.
+
+
+
+# optionally allow an assets folder, does still get pointed to, we prob use
+# buildEnv to combine all assets
+# mkCSSFile we keep, as well as a mkHeadInclude
+#
+# we can copy in image path by having the runcommand and using the cfg with cp
+# dest using the baseNameOf the actual path
 
 
 self: { config, pkgs, lib, ... }:
@@ -28,6 +39,29 @@ let
   # combining all those assets into the cgit pkg with buildEnv
   # Leaving the code around because this is a cool thing to know how to do (the
   # mk function in the let approach)
+  mkCustomCSSFileFromText = cfg: pkgs.writeTextFile {
+    name = "custom-css.css";
+    text = cfg.cgit.css;
+    destination = "/assets/custom-css.css";
+  };
+
+  mkCopyIntoAssets = filepath: pkgs.runCommand "convert-to-asset-path" { } ''
+    mkdir -p $out/assets
+    cp ${filepath} $out/assets/${builtins.baseNameOf filepath}
+  '';
+
+  # this one doesn't need to go _into_ the assets folder because cgitrc can
+  # reference from scratch
+  mkHeadInclude = cfg: pkgs.writeText "cgit-head-include.html" ''
+      <link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />
+
+      ${cfg.cgit.extraHeadInclude}
+  '';
+
+  # mkLogo = cfg: pkgs.runCommand "cgit-assets-logo" { } ''
+  #   mkdir -p $out/assets
+  #   cp ${cfg.cgit.logo} $out/assets/${builtins.baseNameOf cfg.cgit.logo}
+  # '';
 
   # https://stackoverflow.com/questions/76242980/create-a-derivation-in-nix-to-only-copy-some-files
   mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
@@ -38,6 +72,17 @@ let
       cp -r $src/* $out/assets
     '';
   };
+
+  mkCombinedAssets = cfg: pkgs.symlinkJoin {
+    name = "combined-cgit-assets";
+    paths = [
+      (mkCustomCSSFileFromText cfg)
+      # (mkLogo cfg)
+      (mkCopyIntoAssets cfg.cgit.logo)
+      (mkAssets cfg)
+    ] ++ (builtins.map(x: mkCopyIntoAssets x) cfg.css_files);
+  };
+  
   # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
   #   name = "cgit-assets";
   #   src = lib.fileset.toSource {
@@ -98,7 +143,7 @@ in {
       description = "A folder containing files for customizing cgit's appearance, e.g. css, logo, favicon, additional header/footer html etc. To use these files, ...";
     };
     cgit.css_files = mkOption {
-      type = types.listOf types.str;
+      type = types.listOf types.path;
       # default = [ "cgit.css" ];
       default = [ ];
       # TODO: wrong
@@ -108,17 +153,24 @@ in {
       description = "A list of string paths to css files within the small-git-server.cgit.assets folder. 'cgit.css' is the file that comes with cgit, include this one first to base styling off of the default cgit style.";
     };
     cgit.logo = mkOption {
-      type = types.str;
+      type = types.path;
       # default = "cgit.png";
       # TODO: wrong
       description = "Path within assets folder to the image to use in upper left of every page. Default that comes with cgit is 'cgit.png'";
     };
+    cgit.css = mkOption {
+      type = type.str;
+      default = "";
+    };
 
 
-    cgit.noDefaultCSS = mkOption {
-      type = types.bool;
-      default = false;
-      description = "If true, don't include any of the default cgit css.";
+
+    cgit.extraHeadInclude = mkOption {
+      type = types.str;
+      default = "";
+      example = lib.literalExpresion ''
+        <link 
+      '';
     };
 
     cgit.extraSettings = mkOption {
@@ -170,17 +222,20 @@ in {
         enable-html-serving = 1;
         cache = 100;
         # TODO: header/footer/etc.
+        head-include = "${mkHeadInclude cfg}";
         # head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
         # css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files) ++ [ "/cgit.css" ];
-        css = [ "/cgit.css" ] ++ (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files);
+        # css = [ "/cgit.css" ] ++ (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files);
+        # css = [ "/cgit.css" ] ++ (builtins.map (x: "/assets/" + x) cfg.cgit.css_files);
         # css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files);
         logo = "/assets/${builtins.baseNameOf cfg.cgit.logo}";
+        # logo = "/assets/${cfg.cgit.logo}";
         local-time = 1;
       };
     };
     services.nginx.virtualHosts.small-git-server = {
       locations."/assets" = {
-        root = "${(mkAssets cfg)}";
+        root = "${(mkCombinedAssets cfg)}";
       };
     };
   };
