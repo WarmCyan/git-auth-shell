@@ -15,7 +15,7 @@
 let
   cfgs = config.services.cgit-theme;
 
-  themeSubmodule = import ./cgit-theme-options.nix { inherit lib; };
+  themeOptions = import ./cgit-theme-options.nix { inherit lib; };
 
   # All individual asset files need to be merged into a single 'assets' folder
   # to make it easily accessible through a nginx location. Not sure if there's a
@@ -84,7 +84,7 @@ in
     description = "Configure cgit instances with easy custom styling.";
     default = { };
     # this is what allows setting up multiple instances
-    type = lib.types.attrsOf themeSubmodule;
+    type = lib.types.attrsOf themeOptions;
   };
 
   config = lib.mkIf (lib.any (cfg: cfg.enable) (lib.attrValues cfgs)) {

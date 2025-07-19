@@ -2,7 +2,7 @@ self: { config, pkgs, lib, ... }:
 let
   cfg = config.services.small-git-server;
   
-  themeSubmodule = import ./cgit-theme-options.nix { inherit lib; };
+  themeOptions = import ./cgit-theme-options.nix { inherit lib; };
 in
 {
   imports = [
@@ -38,16 +38,15 @@ in
     # https://discourse.nixos.org/t/override-submodule-options/12165/3
     # https://discourse.nixos.org/t/how-to-reuse-submodules-in-a-submodule/63880
     cgit = lib.mkOption {
-      type = themeSubmodule;
+      type = themeOptions;
       default = { };
       description = "Optionally set up an associated cgit instance (attribute name 'small-git-server') with custom theming and reasonable defaults.";
     };
 
-    cgit.nginx.location = lib.mkOption {
-      description = "Location to serve cgit under.";
+    cgitAttrName = lib.mkOption {
       type = lib.types.str;
-      default = "/";
-      example = "/git/";
+      default = "small-git-server";
+      description = "The name to use for the `services.cgit.<attr>` instance as well as the `services.nginx.virtualHosts.<attr>`, for further manual customization (if cgit is enabled).";
     };
   };
 
@@ -70,7 +69,7 @@ in
         );
     };
 
-    services.cgit.small-git-server = lib.mkIf cfg.cgit.enable {
+    services.cgit.${cgitAttrName} = lib.mkIf cfg.cgit.enable {
       enable = true;
       user = "${cfg.gitUser}";
       scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
@@ -89,6 +88,7 @@ in
         cache = 100;
       };
     };
-    services.cgit-theme.small-git-server = lib.mkIf cfg.cgit.enable cfg.cgit;
+
+    services.cgit-theme.${cgitAttrName} = lib.mkIf cfg.cgit.enable cfg.cgit;
   };
 }
