@@ -76,11 +76,11 @@ let
   };
 in
 {
-  options.services.cgit-themed = {
+  options.services.cgit-themed = lib.mkOption {
     descripton = "Configure cgit instances with easy custom styling.";
     default = { };
     # this is what allows setting up multiple instances
-type = lib.types.attrsOf (
+    type = lib.types.attrsOf (
       lib.types.submodule (
         { config, ... }:
         {
