@@ -155,7 +155,7 @@ in
     }) cfgs;
 
     services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
-      locations."${lib.removeSuffix "/" config.cgit.${name}.nginx.location}/assets" = {
+      locations."${lib.removeSuffix "/" config.services.cgit.${name}.nginx.location}/assets" = {
         root = "${(mkCombinedAssets cfg name)}";
       };
     }) cfgs;
