@@ -102,7 +102,7 @@ in
     }) cfgs;
 
     services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
-      locations."${assetsURL name}" = {
+      locations."${assetsURL name}/" = {
         alias = "${(mkCombinedAssets cfg name)}/assets/";
       };
     }) cfgs;
