@@ -111,11 +111,11 @@ in
         builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) cfg.userSSHKeys));
     };
 
-    services.cgit.small-git-server = mkIf cfg.cgit.enable {
+    services.cgit.small-git-server = lib.mkIf cfg.cgit.enable {
       enable = true;
       user = "${cfg.gitUser}";
       scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
     };
-    services.cgit-theme.small-git-server = mkIf cfg.cgit.enable cfg.cgit;
+    services.cgit-theme.small-git-server = lib.mkIf cfg.cgit.enable cfg.cgit;
   };
 }
