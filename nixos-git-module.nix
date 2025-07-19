@@ -57,7 +57,7 @@ let
 
       <link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />
 
-      ${builtins.map (x: "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf x}' />\n") cfg.cgit.css_files}
+      ${lib.concatStrings (builtins.map (x: "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf x}' />\n") cfg.cgit.css_files)}
 
       ${cfg.cgit.extraHeadInclude}
   '';
