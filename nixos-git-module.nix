@@ -41,7 +41,7 @@ let
   mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
     name = "cgit-assets";
     src = lib.fileset.toSource {
-      root = ./.;
+      root = ../.;
       fileset = lib.fileset.unions [
         cfg.cgit.logo
         (lib.fileset.unions cfg.cgit.css_files)
