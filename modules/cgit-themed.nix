@@ -154,7 +154,7 @@ type = lib.types.attrsOf (
         // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; };
     }) cfgs;
 
-    services.nginx.virtualHosts = lab.mapAttrs (name: cfg: {
+    services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
       locations."${lib.removeSuffix "/" config.cgit.${name}.nginx.location}/assets" = {
         root = "${(mkCombinedAssets cfg name)}";
       };
