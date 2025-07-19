@@ -39,7 +39,7 @@ let
   #   '';
   # };
 
-  mkAssets = cfg: symlinkJoin {
+  mkAssets = cfg: pkgs.symlinkJoin {
     name = "cgit-assets";
     paths = [ cfg.cgit.logo ] ++ cfg.cgit.css_files;
   };
