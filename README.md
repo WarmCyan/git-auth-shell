@@ -1,4 +1,4 @@
-# Simple Git Server
+# Small Git Server
 
 TODO: tidy this up
 

@@ -1,12 +1,12 @@
 self: { config, pkgs, lib, ... }:
 with lib;
 let
-  cfg = config.services.simple-git-server;
+  cfg = config.services.small-git-server;
 in {
-  options.services.simple-git-server = {
+  options.services.small-git-server = {
     enable = mkEnableOption "Minimal git server";
 
-    git-user = mkOption {
+    gitUser = mkOption {
       type = types.str;
       default = "git";
       description = "The user under which all git repos are stored. This is also what's used as the ssh target user, e.g. for 'git': 'ssh git@myip'";
@@ -38,10 +38,10 @@ in {
     # https://discourse.nixos.org/t/is-it-possible-to-write-to-an-arbitrary-file-from-nix-config/61999
   };
   config = mkIf cfg.enable {
-    users.users."${cfg.git-user}" = {
+    users.users."${cfg.gitUser}" = {
       isNormalUser = lib.mkForce true;
       isSystemUser = lib.mkForce false;  # needed if using cgit, it tries to override this
-      description = "Git repositories for use by minimal git server.";
+      description = "Git repos";
       packages = [
         pkgs.git
         self.packages.${pkgs.system}.git-auth-shell
@@ -55,8 +55,8 @@ in {
     services.cgit.simple-git-server = mkIf cfg.cgit.enable {
       #package
       enable = true;
-      user = "${cfg.git-user}";
-      scanPath = "${config.users.users.${cfg.git-user}.home}/gitrepos";
+      user = "${cfg.gitUser}";
+      scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
       settings = {
         source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
         about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";

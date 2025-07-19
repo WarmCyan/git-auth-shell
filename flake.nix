@@ -13,7 +13,6 @@
     ];
 
     forAllSystems = lib.genAttrs systems;
-    # pkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     pkgsFor = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system});
   in {
     packages = forAllSystems (system:
@@ -26,8 +25,8 @@
       });
   
     nixosModules = {
-      git-server = import ./nixos-git-module.nix self;
-      default = self.nixosModules.git-server;
+      small-git-server = import ./nixos-git-module.nix self;
+      default = self.nixosModules.small-git-server;
     };
   };
 }
