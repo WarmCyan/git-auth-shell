@@ -80,7 +80,7 @@ let
       # (mkLogo cfg)
       (mkCopyIntoAssets cfg.cgit.logo)
       (mkAssets cfg)
-    ] ++ (builtins.map(x: mkCopyIntoAssets x) cfg.css_files);
+    ] ++ (builtins.map(x: mkCopyIntoAssets x) cfg.cgit.css_files);
   };
   
   # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
