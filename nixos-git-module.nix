@@ -5,7 +5,18 @@ let
 
   # based on https://github.com/NixOS/nixpkgs/blob/32a4e87942101f1c9f9865e04dc3ddb175f5f32e/nixos/modules/services/networking/cgit.nix#L91
   # mkCSSFile = cfg: pkgs.writeText "custom-cgit-theme.css" cfg.cgit.css;
-  mkCSSFile = cfg: pkgs.writeTextFile { name="custom-cgit-theme"; text = cfg.cgit.css; destination = "/cgit/custom-cgit-theme.css"; };
+  # NOTE: using writeTextFile into subdir because buildEnv doesn't work with a
+  # single path. So, use /cgit/ because that's where default /cgit/cgit.css goes
+  # in cgit package
+  mkCSSFile = cfg: pkgs.writeTextFile { 
+    name="custom-cgit-theme";
+    text = ''
+    <style>
+      ${cfg.cgit.css};
+    </style>
+    ''
+    destination = "/cgit/custom-cgit-theme.html";
+  };
 in {
   options.services.small-git-server = {
     enable = mkEnableOption "Minimal git server";
@@ -90,7 +101,7 @@ in {
         enable-html-serving = 1;
         cache = 100;
         # TODO: header/footer/etc.
-        head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.css";
+        head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
         local-time = 1;
       };
     };
