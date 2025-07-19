@@ -88,7 +88,7 @@ in
             enable = lib.mkEnableOption "cgit-themed";
 
             assets = lib.mkOption {
-              types = lib.types.path;
+              type = lib.types.path;
               default = null;
               description = "An optional path to a collection of asset files (css/images/fonts/js) to place into the nix store and make available to the cgit frontend (through any '/assets/*' URLs.) If you're using this with some CSS files, you probably need to set `extraHeadInclude` to refer to them, or alternatively just rely on the `css` or `cssFiles` options to do this automatically.";
             };
