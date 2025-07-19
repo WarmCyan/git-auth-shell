@@ -9,11 +9,11 @@
 # note that there seems to be an issue with the 'css' option - the docs say you
 # can specify it multiple times to include multiple files, but this doesn't
 # appear to work in practice. The approach here gets around it by automatically
-# throwing in a head-include with any (multiple) passed css files referenced.
+# throwing in a head-include with any (multiple) passed css files.
 
 self: { config, pkgs, lib, ... }:
 let
-  cfgs = config.services.cgit-themed;
+  cfgs = config.services.cgit-theme;
 
   # All individual asset files need to be merged into a single 'assets' folder
   # to make it easily accessible through a nginx location. Not sure if there's a
@@ -22,7 +22,7 @@ let
   # turns a single file into a directory with 'assets' subdirectory containing
   # this one file, and it can later be merged with symlinkJoin. (see
   # mkCombinedAssets)
-  mkAssetsFile = filepath: pkgs.runCommand "cgit-themed-asset-filepath-${builtins.baseNameOf filepath}" { } ''
+  mkAssetsFile = filepath: pkgs.runCommand "cgit-theme-asset-filepath-${builtins.baseNameOf filepath}" { } ''
     mkdir -p $out/assets
     cp ${filepath} $out/assets/${builtins.baseNameOf filepath}
   '';
@@ -30,7 +30,7 @@ let
   # turn any raw CSS provided through `css` option into a CSS file (again in an
   # assets subdirectory to be merged in mkCombinedAssets)
   mkCustomCSS = cfg: name: pkgs.writeTextFile {
-    name = "cgit-themed-${name}-custom-css.css";
+    name = "cgit-theme-${name}-custom-css.css";
     text = cfg.css;
     destination = "/assets/custom-css.css";
   };
@@ -39,7 +39,7 @@ let
   # copy a whole assets path into a assets subdir in a deriv (again to later be
   # merged with mkCombinedAssets)
   mkAssetsFolder = cfg: name: pkgs.stdenvNoCC.mkDerivation {
-    name = "cgit-themed-${name}-assets";
+    name = "cgit-theme-${name}-assets";
     src = cfg.assets;
     installPhase = ''
       mkdir -p $out/assets
@@ -51,7 +51,7 @@ let
   # with a single nginx location/root combo. This makes it easier to include
   # arbitrary files with custom CSS and extraHeadInclude
   mkCombinedAssets = cfg: name: pkgs.symlinkJoin {
-    name = "cgit-themed-${name}-combined-assets";
+    name = "cgit-theme-${name}-combined-assets";
     # https://hugosum.com/blog/conditionally-add-values-into-list-or-map-in-nix
     paths = [ ] 
       ++ (builtins.map(cssPath: mkAssetsFile cssPath) cfg.cssFiles)
@@ -64,7 +64,7 @@ let
   # Write the HTML file to be included in <HEAD> of every cgit page. This
   # doesn't need to go in an assets folder because the cgitrc will take a full
   # path rather than a frontend URL.
-  mkHeadInclude = cfg: name: pkgs.writeText "cgit-themed-${name}-head-include.html" ''
+  mkHeadInclude = cfg: name: pkgs.writeText "cgit-theme-${name}-head-include.html" ''
     ${lib.concatStrings 
       (builtins.map (stylepath: 
       "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf stylepath}' />\n"
@@ -75,10 +75,10 @@ let
     ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />" else ""}
   '';
 
-  mkAbout = cfg: name: pkgs.writeText "cgit-themed-${name}-about.html" cfg.aboutHTML;
+  mkAbout = cfg: name: pkgs.writeText "cgit-theme-${name}-about.html" cfg.aboutHTML;
 in
 {
-  options.services.cgit-themed = lib.mkOption {
+  options.services.cgit-theme = lib.mkOption {
     description = "Configure cgit instances with easy custom styling.";
     default = { };
     # this is what allows setting up multiple instances
@@ -87,7 +87,7 @@ in
         { config, ... }:
         {
           options = {
-            enable = lib.mkEnableOption "cgit-themed";
+            enable = lib.mkEnableOption "cgit-theme";
 
             aboutHTML = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
