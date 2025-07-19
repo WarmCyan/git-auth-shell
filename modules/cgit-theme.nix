@@ -70,15 +70,17 @@ let
   mkHeadInclude = cfg: name: pkgs.writeText "cgit-theme-${name}-head-include.html" ''
     ${lib.concatStrings 
       (builtins.map (stylepath: 
-      "<link rel='stylesheet' type='text/css' href='assets/${builtins.baseNameOf stylepath}' />\n"
+      "<link rel='stylesheet' type='text/css' href='${assetsURL name}/${builtins.baseNameOf stylepath}' />\n"
     ) cfg.cssFiles)}
 
     ${cfg.extraHeadInclude}
 
-    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='assets/custom-css.css' />" else ""}
+    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='${assetsURL name}/custom-css.css' />" else ""}
   '';
 
   mkAbout = cfg: name: pkgs.writeText "cgit-theme-${name}-about.html" cfg.aboutHTML;
+
+  assetsURL = name: "${lib.removeSuffix "/" config.services.cgit.${name}.nginx.location}/assets";
 in
 {
   options.services.cgit-theme = lib.mkOption {
@@ -94,13 +96,13 @@ in
       settings = {
         head-include = "${mkHeadInclude cfg name}";
       }
-        // lib.optionalAttrs (cfg.logo != null) { logo = "assets/${builtins.baseNameOf cfg.logo}"; }
-        // lib.optionalAttrs (cfg.favicon != null) { favicon = "assets/${builtins.baseNameOf cfg.favicon}"; }
+        // lib.optionalAttrs (cfg.logo != null) { logo = "${assetsURL name}/${builtins.baseNameOf cfg.logo}"; }
+        // lib.optionalAttrs (cfg.favicon != null) { favicon = "${assetsURL name}/${builtins.baseNameOf cfg.favicon}"; }
         // lib.optionalAttrs (cfg.aboutHTML != null) { root-readme = "${mkAbout cfg name}"; };
     }) cfgs;
 
     services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
-      locations."${lib.removeSuffix "/" config.services.cgit.${name}.nginx.location}/assets/" = {
+      locations."${assetsURL name}" = {
         alias = "${(mkCombinedAssets cfg name)}/assets/";
       };
     }) cfgs;
