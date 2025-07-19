@@ -106,7 +106,7 @@ in {
         cache = 100;
         # TODO: header/footer/etc.
         head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
-        logo = "${cfg.logo}";
+        logo = "${cfg.cgit.logo}";
         local-time = 1;
       };
     };
