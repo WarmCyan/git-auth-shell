@@ -74,7 +74,7 @@ in {
       example = lib.literalExpresion ''
         [ "cgit.css" "mycustomcss.css" ];
       '';
-      description = "A list of string paths to css files within the small-git-server.cgit.assets folder. 'cgit.css' is the file that comes with cgit, include this one first to base styling off of the default cgit style."
+      description = "A list of string paths to css files within the small-git-server.cgit.assets folder. 'cgit.css' is the file that comes with cgit, include this one first to base styling off of the default cgit style.";
     };
     cgit.logo_file = mkOption {
       type = types.str;
