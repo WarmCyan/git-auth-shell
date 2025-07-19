@@ -15,7 +15,7 @@
 let
   cfgs = config.services.cgit-theme;
 
-  themeSubmodule = import ./cgit-theme-options.nix { inherit lib };
+  themeSubmodule = import ./cgit-theme-options.nix { inherit lib; };
 
   # All individual asset files need to be merged into a single 'assets' folder
   # to make it easily accessible through a nginx location. Not sure if there's a

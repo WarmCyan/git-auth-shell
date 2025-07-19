@@ -2,7 +2,7 @@ self: { config, pkgs, lib, ... }:
 let
   cfg = config.services.small-git-server;
   
-  themeSubmodule = import ./cgit-theme-options.nix { inherit lib };
+  themeSubmodule = import ./cgit-theme-options.nix { inherit lib; };
 in
 {
   imports = [
