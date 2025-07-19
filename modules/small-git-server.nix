@@ -59,11 +59,11 @@ in
         pkgs.git
         self.packages.${pkgs.system}.git-auth-shell
       ];
-      
-      openssh.authorizedKeys.keys = builtins.concatLists 
-        (builtins.attrValues 
-          (builtins.mapAttrs (name: keylist: 
-            builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) 
+
+      openssh.authorizedKeys.keys = builtins.concatLists
+        (builtins.attrValues
+          (builtins.mapAttrs (name: keylist:
+            builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist)
             cfg.userSSHKeys
           )
         );
@@ -76,7 +76,7 @@ in
       settings = {
         source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
         about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
-        readme = [ ":README.md" ":readme.md" ":README" ":readme" ":README.rst" ":readme.rst" ":README.txt" ":readme.txt" ];
+        readme = [ ":README.md" ":readme.md" ":README" ":readme" ":README.rst" ":readme.rst" ":README.txt" ":readme.txt" ":README.html" ":readme.html" ];
         enable-blame = 1;
         enable-commit-graph = 1;
         enable-follow-links = 1;
@@ -84,7 +84,8 @@ in
         enable-http-clone = 1;
         enable-html-serving = 1;
         local-time = 1;
-        cache = 100;
+        cache = 500;
+        branch-sort = "age";
       };
     };
 
