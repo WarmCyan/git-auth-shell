@@ -65,7 +65,7 @@ in {
 
     cgit.enable = mkEnableOption "a cgit instance for the repositories hosted on this git server. Note that this will make a nginx virtualHost at 'simple-git-server'";
     cgit.assets = mkOption {
-      types = types.path;
+      type = types.path;
       description = "A folder containing files for customizing cgit's appearance, e.g. css, logo, favicon, additional header/footer html etc. To use these files, ...";
     };
     cgit.css_files = mkOption {
