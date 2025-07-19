@@ -30,14 +30,14 @@ let
   # mk function in the let approach)
 
   # https://stackoverflow.com/questions/76242980/create-a-derivation-in-nix-to-only-copy-some-files
-  # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
-  #   name = "cgit-assets";
-  #   src = cfg.cgit.assets;
-  #   installPhase = ''
-  #     mkdir -p $out/cgit
-  #     cp -r $src/* $out/cgit
-  #   '';
-  # };
+  mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
+    name = "cgit-assets";
+    src = cfg.cgit.assets;
+    installPhase = ''
+      mkdir -p $out/assets
+      cp -r $src/* $out/assets
+    '';
+  };
   # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
   #   name = "cgit-assets";
   #   src = lib.fileset.toSource {
@@ -51,10 +51,12 @@ let
   #     cp -r $src/* $out
   #   '';
   # };
-  mkAssets = cfg: pkgs.runCommand "cgit-assets" { } ''
-    mkdir $out
-    cp "${cfg.cgit.logo}" $out
-  '';
+  # mkAssets = cfg: pkgs.runCommand "cgit-assets" { } ''
+  #   mkdir $out
+  #   cp "${cfg.cgit.logo}" $out
+  # '';
+
+  
 
   # mkAssets = cfg: pkgs.symlinkJoin {
   #   name = "cgit-assets";
@@ -96,7 +98,7 @@ in {
       description = "A folder containing files for customizing cgit's appearance, e.g. css, logo, favicon, additional header/footer html etc. To use these files, ...";
     };
     cgit.css_files = mkOption {
-      type = types.listOf types.path;
+      type = types.listOf types.str;
       # default = [ "cgit.css" ];
       default = [ ];
       # TODO: wrong
@@ -106,7 +108,7 @@ in {
       description = "A list of string paths to css files within the small-git-server.cgit.assets folder. 'cgit.css' is the file that comes with cgit, include this one first to base styling off of the default cgit style.";
     };
     cgit.logo = mkOption {
-      type = types.path;
+      type = types.str;
       # default = "cgit.png";
       # TODO: wrong
       description = "Path within assets folder to the image to use in upper left of every page. Default that comes with cgit is 'cgit.png'";
