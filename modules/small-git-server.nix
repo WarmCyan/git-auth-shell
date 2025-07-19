@@ -1,6 +1,8 @@
 self: { config, pkgs, lib, ... }:
 let
   cfg = config.services.small-git-server;
+  
+  themeSubmodule = import ./cgit-theme-options.nix { inherit lib };
 in
 {
   imports = [
@@ -34,7 +36,11 @@ in
       '';
     };
 
-    cgit = (import ./cgit-theme.nix { inherit config pkgs lib; }).options.services.cgit-theme;
+    # https://discourse.nixos.org/t/override-submodule-options/12165/3
+    cgit = lib.mkOption {
+      type = types.attrsOf themeSubmodule;
+      default = { };
+    };
 
     # cgit = {
     #   enable = mkEnableOption "A cgit instance for the repositories hosted on this git server. Note that this will make a nginx virtualHost at 'simple-git-server', or the `cgit.name` attribute".;
