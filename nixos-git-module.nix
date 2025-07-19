@@ -45,6 +45,9 @@ let
     destination = "/assets/custom-css.css";
   };
 
+  # take any single file store path and put it into an /nix/store/.../assets
+  # subpath. This was the only way I could figure out how to take individual
+  # filepaths and put them into store subdirectories for non-text files.
   mkCopyIntoAssets = filepath: pkgs.runCommand "convert-to-asset-path" { } ''
     mkdir -p $out/assets
     cp ${filepath} $out/assets/${builtins.baseNameOf filepath}
@@ -77,6 +80,9 @@ let
     '';
   };
 
+  # make a single combined /nix/store/.../assets folder which we
+  # can point to with a single nginx location/root combo. This makes it
+  # so you can do more with custom css and head include
   mkCombinedAssets = cfg: pkgs.symlinkJoin {
     name = "combined-cgit-assets";
     paths = [
@@ -162,6 +168,7 @@ in {
       # TODO: wrong
       description = "Path within assets folder to the image to use in upper left of every page. Default that comes with cgit is 'cgit.png'";
     };
+    # TODO: icon
     cgit.css = mkOption {
       type = types.str;
       default = "";

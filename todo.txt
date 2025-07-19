@@ -1,9 +1,11 @@
 TODO: expand path sanitization (`, {, etc.)
 TODO: expand on readme
-STRT: custom cgit css/logo overrides
+DONE: custom cgit css/logo overrides
+TODO: tie in optional additional settings
 TODO: license
 DONE: git-user -> gitUser
 TODO: ability to add new ssh-keys through command
 TODO: ability to configure env vars (prob need to override package?) 
 TODO: print error if cmd not recognized
 DONE: rename to small-git-server
+TODO: does anything break if e.g. logo isn't specified?
