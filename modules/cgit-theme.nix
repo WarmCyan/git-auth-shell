@@ -63,18 +63,19 @@ let
       ++ (lib.optional (cfg.assets != null) (mkAssetsFolder cfg name));
   };
 
+  # <base href='${config.services.cgit.${name}.nginx.location}'
   # Write the HTML file to be included in <HEAD> of every cgit page. This
   # doesn't need to go in an assets folder because the cgitrc will take a full
   # path rather than a frontend URL.
   mkHeadInclude = cfg: name: pkgs.writeText "cgit-theme-${name}-head-include.html" ''
     ${lib.concatStrings 
       (builtins.map (stylepath: 
-      "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf stylepath}' />\n"
+      "<link rel='stylesheet' type='text/css' href='assets/${builtins.baseNameOf stylepath}' />\n"
     ) cfg.cssFiles)}
 
     ${cfg.extraHeadInclude}
 
-    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />" else ""}
+    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='assets/custom-css.css' />" else ""}
   '';
 
   mkAbout = cfg: name: pkgs.writeText "cgit-theme-${name}-about.html" cfg.aboutHTML;
@@ -93,14 +94,14 @@ in
       settings = {
         head-include = "${mkHeadInclude cfg name}";
       }
-        // lib.optionalAttrs (cfg.logo != null) { logo = "/assets/${builtins.baseNameOf cfg.logo}"; }
-        // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; }
+        // lib.optionalAttrs (cfg.logo != null) { logo = "assets/${builtins.baseNameOf cfg.logo}"; }
+        // lib.optionalAttrs (cfg.favicon != null) { favicon = "assets/${builtins.baseNameOf cfg.favicon}"; }
         // lib.optionalAttrs (cfg.aboutHTML != null) { root-readme = "${mkAbout cfg name}"; };
     }) cfgs;
 
     services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
-      locations."~ ^${lib.removeSuffix "/" config.services.cgit.${name}.nginx.location}/assets/.*" = {
-        root = "${(mkCombinedAssets cfg name)}/assets";
+      locations."${lib.removeSuffix "/" config.services.cgit.${name}.nginx.location}/assets/" = {
+        alias = "${(mkCombinedAssets cfg name)}/assets/";
       };
     }) cfgs;
   };
