@@ -95,6 +95,7 @@ in
       enable = true;
       settings = {
         head-include = "${mkHeadInclude cfg name}";
+        css = "${assetsURL name}/cgit.css";
       }
         // lib.optionalAttrs (cfg.logo != null) { logo = "${assetsURL name}/${builtins.baseNameOf cfg.logo}"; }
         // lib.optionalAttrs (cfg.favicon != null) { favicon = "${assetsURL name}/${builtins.baseNameOf cfg.favicon}"; }
