@@ -33,7 +33,17 @@ in {
     # authorizedKeys command
 
     cgit.enable = mkEnableOption "a cgit instance for the repositories hosted on this git server. Note that this will make a nginx virtualHost at 'simple-git-server'";
-    
+    cgit.css = mkOption {
+      type = types.str;
+      default = "";
+      example = lib.literalExpresion ''
+        /* insert example here */
+      '';
+    };
+
+    # based on https://github.com/NixOS/nixpkgs/blob/32a4e87942101f1c9f9865e04dc3ddb175f5f32e/nixos/modules/services/networking/cgit.nix#L91
+    mkCSSFile = cfg: pkgs.writeTextToFile "custom-cgit-theme.css" cfg.cgit.css;
+
     # TODO: cgit theme and logo file
     # https://discourse.nixos.org/t/is-it-possible-to-write-to-an-arbitrary-file-from-nix-config/61999
   };
@@ -54,6 +64,14 @@ in {
     # TODO: override cgit package post to copy in css/logo files
     services.cgit.simple-git-server = mkIf cfg.cgit.enable {
       #package
+      package = pkgs.buildEnv {
+        name = "cgit-styled";
+        paths = [ 
+          pkgs.cgit
+          (mkCSSFile cfg)
+        ];
+      };
+
       enable = true;
       user = "${cfg.gitUser}";
       scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
@@ -70,6 +88,7 @@ in {
         enable-html-serving = 1;
         cache = 100;
         # TODO: header/footer/etc.
+        head-include = (mkCSSFile cfg);
         local-time = 1;
       };
     };

@@ -6,4 +6,4 @@ DONE: git-user -> gitUser
 TODO: ability to add new ssh-keys through command
 TODO: ability to configure env vars (prob need to override package?) 
 TODO: print error if cmd not recognized
-STRT: rename to small-git-server
+DONE: rename to small-git-server
