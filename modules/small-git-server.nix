@@ -4,7 +4,8 @@ let
 in
 {
   imports = [
-    ./cgit-theme.nix
+    # ./cgit-theme.nix
+    self.nixosModules.cgit-theme
   ];
 
   options.services.small-git-server = {
