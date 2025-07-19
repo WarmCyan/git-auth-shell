@@ -11,7 +11,7 @@
 # appear to work in practice. The approach here gets around it by automatically
 # throwing in a head-include with any (multiple) passed css files.
 
-self: { config, pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 let
   cfgs = config.services.cgit-theme;
 

@@ -34,7 +34,7 @@ in
       '';
     };
 
-    cgit = (import ./cgit-theme.nix { inherit self config pkgs lib; }).options.services.cgit-theme.small-git-server;
+    cgit = (import ./cgit-theme.nix { inherit config pkgs lib; }).options.services.cgit-theme.small-git-server;
 
     # cgit = {
     #   enable = mkEnableOption "A cgit instance for the repositories hosted on this git server. Note that this will make a nginx virtualHost at 'simple-git-server', or the `cgit.name` attribute".;
