@@ -40,7 +40,7 @@ in
     cgit = lib.mkOption {
       type = themeSubmodule;
       default = { };
-      description = "Optionally set up an associated cgit instance (attribute name 'small-git-server') with custom theming and reasonable defaults."
+      description = "Optionally set up an associated cgit instance (attribute name 'small-git-server') with custom theming and reasonable defaults.";
     };
 
     cgit.nginx.location = lib.mkOption {
