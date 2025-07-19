@@ -1,8 +1,10 @@
 # `cgit-theme`
 
 I found it annoyingly difficult to set up custom styles with cgit through nixos,
-mostly because several relevant options take relative web URLs (e.g. logo and
-favicon) rather than raw nix store filepaths.
+mostly because several relevant options take web URLs (e.g. logo and favicon)
+rather than raw nix store filepaths, and the underlying nginx configuration
+configured by the cgit module only targets the default files that come with
+cgit.
 
 This module creates a `services.cgit-theme.<name>` to be used in tandem with
 `services.cgit.<name>` and allows setting several theming options (image files
