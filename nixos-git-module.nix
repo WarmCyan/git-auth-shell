@@ -38,11 +38,23 @@ let
   #     cp -r $src/* $out/cgit
   #   '';
   # };
-
-  mkAssets = cfg: pkgs.symlinkJoin {
+  mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
     name = "cgit-assets";
-    paths = [ cfg.cgit.logo ] ++ cfg.cgit.css_files;
+    src = lib.fileset.toSource {
+      root = ./.;
+      fileset = lib.fileset.unions [
+        cfg.cgit.logo
+      ] ++ cfg.git.css_files;
+    };
+    installPhase = ''
+      cp -r $src/* $out
+    '';
   };
+
+  # mkAssets = cfg: pkgs.symlinkJoin {
+  #   name = "cgit-assets";
+  #   paths = [ cfg.cgit.logo ] ++ cfg.cgit.css_files;
+  # };
 in {
   options.services.small-git-server = {
     enable = mkEnableOption "Minimal git server";
