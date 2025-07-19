@@ -44,7 +44,8 @@ let
       root = ./.;
       fileset = lib.fileset.unions [
         cfg.cgit.logo
-      ] ++ cfg.cgit.css_files;
+        (lib.fileset.unions cfg.cgit.css_files)
+      ];
     };
     installPhase = ''
       cp -r $src/* $out
