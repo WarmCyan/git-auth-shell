@@ -171,7 +171,8 @@ in {
         cache = 100;
         # TODO: header/footer/etc.
         # head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
-        css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files) ++ [ "/cgit.css" ];
+        # css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files) ++ [ "/cgit.css" ];
+        css = (builtins.map (x: "/assets/" + (builtins.baseNameOf x)) cfg.cgit.css_files);
         logo = "/assets/${builtins.baseNameOf cfg.cgit.logo}";
         local-time = 1;
       };
