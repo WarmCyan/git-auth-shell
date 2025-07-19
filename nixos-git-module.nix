@@ -38,19 +38,23 @@ let
   #     cp -r $src/* $out/cgit
   #   '';
   # };
-  mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
-    name = "cgit-assets";
-    src = lib.fileset.toSource {
-      root = ../.;
-      fileset = lib.fileset.unions [
-        cfg.cgit.logo
-        (lib.fileset.unions cfg.cgit.css_files)
-      ];
-    };
-    installPhase = ''
-      cp -r $src/* $out
-    '';
-  };
+  # mkAssets = cfg: pkgs.stdenvNoCC.mkDerivation {
+  #   name = "cgit-assets";
+  #   src = lib.fileset.toSource {
+  #     root = ../.;
+  #     fileset = lib.fileset.unions [
+  #       cfg.cgit.logo
+  #       (lib.fileset.unions cfg.cgit.css_files)
+  #     ];
+  #   };
+  #   installPhase = ''
+  #     cp -r $src/* $out
+  #   '';
+  # };
+  mkAssets = cfg: pkgs.runCommand "cgit-assets" { } ''
+    mkdir $out
+    cp "${cfg.cgit.logo}" $out
+  '';
 
   # mkAssets = cfg: pkgs.symlinkJoin {
   #   name = "cgit-assets";
@@ -171,7 +175,7 @@ in {
       };
     };
     services.nginx.virtualHosts.small-git-server = {
-      locations."/assets/" = {
+      locations."/assets" = {
         root = "${(mkAssets cfg)}";
       };
     };
