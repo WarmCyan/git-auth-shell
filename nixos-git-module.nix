@@ -86,7 +86,6 @@ in {
         paths = [
           pkgs.cgit
           (mkCSSFile cfg)
-          cfg.cgit.logo
         ];
       };
 
@@ -107,6 +106,7 @@ in {
         cache = 100;
         # TODO: header/footer/etc.
         head-include = "${mkCSSFile cfg}/cgit/custom-cgit-theme.html";
+        logo = "${cfg.logo}";
         local-time = 1;
       };
     };
