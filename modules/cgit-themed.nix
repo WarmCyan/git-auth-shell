@@ -72,8 +72,7 @@ let
       ++ (lib.optional (cfg.css != null) (mkCustomCSS cfg name))
       ++ (lib.optional (cfg.logo != null) (mkAssetsFile cfg.logo))
       ++ (lib.optional (cfg.favicon != null) (mkAssetsFile cfg.favicon))
-      ++ (lib.optional (cfg.assets != null) (mkAssetsFolder cfg name))
-    ;
+      ++ (lib.optional (cfg.assets != null) (mkAssetsFolder cfg name));
   };
 in
 {
@@ -152,8 +151,7 @@ type = lib.types.attrsOf (
         head-include = "${mkHeadInclude cfg name}";
       }
         // lib.optionalAttrs (cfg.logo != null) { logo = "/assets/${builtins.baseNameOf cfg.logo}"; }
-        // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; }
-      ;
+        // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; };
     }) cfgs;
 
     services.nginx.virtualHosts = lab.mapAttrs (name: cfg: {

@@ -25,6 +25,7 @@
       });
   
     nixosModules = {
+      cgit-themed = import ./modules/cgit-themed.nix self;
       small-git-server = import ./nixos-git-module.nix self;
       default = self.nixosModules.small-git-server;
     };
