@@ -159,7 +159,7 @@ in {
       description = "Path within assets folder to the image to use in upper left of every page. Default that comes with cgit is 'cgit.png'";
     };
     cgit.css = mkOption {
-      type = type.str;
+      type = types.str;
       default = "";
     };
 
