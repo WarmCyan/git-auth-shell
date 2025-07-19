@@ -11,9 +11,9 @@ let
   mkCSSFile = cfg: pkgs.writeTextFile { 
     name="custom-cgit-theme";
     text = ''
-    <style>
-      ${cfg.cgit.css};
-    </style>
+      <style>
+        ${cfg.cgit.css};
+      </style>
     '';
     destination = "/cgit/custom-cgit-theme.html";
   };
@@ -55,6 +55,10 @@ in {
         /* insert example here */
       '';
     };
+    cgit.logo = mkOption {
+      type = types.path;
+      description = "Image to use in upper left of every page.";
+    };
 
 
     # TODO: cgit theme and logo file
@@ -79,9 +83,10 @@ in {
       # https://discourse.nixos.org/t/adding-files-to-a-package/14626
       package = pkgs.buildEnv {
         name = "cgit-styled";
-        paths = [ 
+        paths = [
           pkgs.cgit
           (mkCSSFile cfg)
+          cfg.cgit.logo
         ];
       };
 
