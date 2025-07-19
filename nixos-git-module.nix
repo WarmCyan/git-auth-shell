@@ -4,7 +4,8 @@ let
   cfg = config.services.small-git-server;
 
   # based on https://github.com/NixOS/nixpkgs/blob/32a4e87942101f1c9f9865e04dc3ddb175f5f32e/nixos/modules/services/networking/cgit.nix#L91
-  mkCSSFile = cfg: pkgs.writeTextFile "custom-cgit-theme.css" cfg.cgit.css;
+  #mkCSSFile = cfg: pkgs.writeText "custom-cgit-theme.css" cfg.cgit.css;
+  mkCSSFile = cfg: pkgs.writeTextFile { name="custom-cgit-theme.css"; text = cfg.cgit.css };
 in {
   options.services.small-git-server = {
     enable = mkEnableOption "Minimal git server";
