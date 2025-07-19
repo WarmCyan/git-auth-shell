@@ -38,7 +38,8 @@ in
 
     # https://discourse.nixos.org/t/override-submodule-options/12165/3
     cgit = lib.mkOption {
-      type = lib.types.attrsOf themeSubmodule;
+      # type = lib.types.attrsOf themeSubmodule;
+      type = themeSubmodule;
       default = { };
     };
 
