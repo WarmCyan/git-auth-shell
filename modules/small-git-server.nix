@@ -7,7 +7,6 @@ in
 {
   imports = [
     ./cgit-theme.nix
-    # self.nixosModules.cgit-theme
   ];
 
   options.services.small-git-server = {
@@ -37,72 +36,19 @@ in
     };
 
     # https://discourse.nixos.org/t/override-submodule-options/12165/3
+    # https://discourse.nixos.org/t/how-to-reuse-submodules-in-a-submodule/63880
     cgit = lib.mkOption {
-      # type = lib.types.attrsOf themeSubmodule;
       type = themeSubmodule;
       default = { };
+      description = "Optionally set up an associated cgit instance (attribute name 'small-git-server') with custom theming and reasonable defaults."
     };
 
-    # cgit = {
-    #   enable = mkEnableOption "A cgit instance for the repositories hosted on this git server. Note that this will make a nginx virtualHost at 'simple-git-server', or the `cgit.name` attribute".;
-    #
-    #   name = lib.mkOption {
-    #     type = lib.types.str;
-    #     default = "small-git-server";
-    #     description = "The attribute name to use for the cgit instance and nginx virtual host. This is so you can manually set additional nginx and cgit configuration if desired";
-    #   };
-    #
-    #   aboutHTML = lib.mkOption {
-    #     type = lib.types.nullOr lib.types.str;
-    #     default = null;
-    #     description = "An optional about HTML page for the cgit instance, set as the root-readme in the cgitrc.";
-    #   };
-    #
-    #   assets = lib.mkOption {
-    #     type = lib.types.nullOr lib.types.path;
-    #     default = null;
-    #     description = "An optional path to a collection of asset files (css/images/fonts/js) to place into the nix store and make available to the cgit frontend (through any '/assets/*' URLs.) If you're using this with some CSS files, you probably need to set `extraHeadInclude` to refer to them, or alternatively just rely on the `css` or `cssFiles` options to do this automatically.";
-    #   };
-    #
-    #   logo = lib.mkOption {
-    #     type = lib.types.nullOr lib.types.path;
-    #     default = null;
-    #     description = "Path to an image file to use as the logo in the upper right. The image is made available to the cgit frontend through a '/assets/[logofilename]' URL. Setting this automatically sets the correct line in the cgitrc.";
-    #   };
-    #
-    #   favicon = lib.mkOption {
-    #     type = lib.types.nullOr lib.types.path;
-    #     default = null;
-    #     description = "Path to an ico file to use as site favicon. The .ico is made available to the cgit fronend through '/assets/[icofilename]' URL. Setting this automatically sets the correct line in the cgitrc.";
-    #   };
-    #
-    #   cssFiles = lib.mkOption {
-    #     type = lib.types.listOf lib.types.path;
-    #     default = [ ];
-    #     description = "An optional list of paths to CSS files to use in the cgit frontend. These will be made available to the cgit frontend through a '/assets/*' URLS, and are automatically included through the cgitrc head-include option. (Note that you can add to this through `extraHeadInclude`.)";
-    #   };
-    #
-    #   css = lib.mkOption {
-    #     type = lib.types.nullOr lib.types.str;
-    #     default = null;
-    #     description = "Optional raw CSS to include in the cgit frontend. Anything here is written to a file available through a '/assets/custom-css.css' URL, and is appended to the head-include html file. This is added after any `cssFiles` any `extraHeadInclude` text, and so can override any styles from the other two.";
-    #     example = lib.literalExpression ''
-    #       body {
-    #         background-color: red !important;
-    #       }
-    #     '';
-    #   };
-    #
-    #   extraHeadInclude = lib.mkOption {
-    #     type = lib.types.str;
-    #     default = "";
-    #     description = "Any additional HTML to include in the <HEAD> of every page. If an assets folder was specified through the `assets` option, those can be referenced here through any '/assets/*' URLs.";
-    #     example = lib.literalExpression ''
-    #       <meta name="viewport" content="width=device-width initial-scale=1.0" />
-    #       <link rel='stylesheet' type='text/css' href='/assets/css-file-i-added-through-assets-option.css' />
-    #     '';
-    #   };
-    # };
+    cgit.nginx.location = lib.mkOption {
+      description = "Location to serve cgit under.";
+      type = lib.types.str;
+      default = "/";
+      example = "/git/";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -115,14 +61,33 @@ in
         self.packages.${pkgs.system}.git-auth-shell
       ];
       
-      openssh.authorizedKeys.keys = builtins.concatLists (builtins.attrValues (builtins.mapAttrs (name: keylist: 
-        builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) cfg.userSSHKeys));
+      openssh.authorizedKeys.keys = builtins.concatLists 
+        (builtins.attrValues 
+          (builtins.mapAttrs (name: keylist: 
+            builtins.map (x: "restrict,command=\"${self.packages.${pkgs.system}.git-auth-shell}/bin/git-auth-shell ${name} \\\"$SSH_ORIGINAL_COMMAND\\\"\" " + x) keylist) 
+            cfg.userSSHKeys
+          )
+        );
     };
 
     services.cgit.small-git-server = lib.mkIf cfg.cgit.enable {
       enable = true;
       user = "${cfg.gitUser}";
       scanPath = "${config.users.users.${cfg.gitUser}.home}/gitrepos";
+      nginx.location = cfg.cgit.nginx.location;
+      settings = {
+        source-filter = "${pkgs.cgit}/lib/cgit/filters/syntax-highlighting.py";
+        about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
+        readme = [ ":README.md" ":readme.md" ":README" ":readme" ":README.rst" ":readme.rst" ":README.txt" ":readme.txt" ];
+        enable-blame = 1;
+        enable-commit-graph = 1;
+        enable-follow-links = 1;
+        enable-git-config = 1;
+        enable-http-clone = 1;
+        enable-html-serving = 1;
+        local-time = 1;
+        cache = 100;
+      };
     };
     services.cgit-theme.small-git-server = lib.mkIf cfg.cgit.enable cfg.cgit;
   };
