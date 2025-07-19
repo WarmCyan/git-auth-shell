@@ -22,7 +22,7 @@ let
   # turns a single file into a directory with 'assets' subdirectory containing
   # this one file, and it can later be merged with symlinkJoin. (see
   # mkCombinedAssets)
-  mkAssetsFile = filepath: pkgs.runCommand "asset-filepath-${builtins.baseNameOf filepath}" { } ''
+  mkAssetsFile = filepath: pkgs.runCommand "cgit-themed-asset-filepath-${builtins.baseNameOf filepath}" { } ''
     mkdir -p $out/assets
     cp ${filepath} $out/assets/${builtins.baseNameOf filepath}
   '';
@@ -30,30 +30,16 @@ let
   # turn any raw CSS provided through `css` option into a CSS file (again in an
   # assets subdirectory to be merged in mkCombinedAssets)
   mkCustomCSS = cfg: name: pkgs.writeTextFile {
-    name = "custom-css.css";
+    name = "cgit-themed-${name}-custom-css.css";
     text = cfg.css;
     destination = "/assets/custom-css.css";
   };
-
-  # Write the HTML file to be included in <HEAD> of every cgit page. This
-  # doesn't need to go in an assets folder because the cgitrc will take a full
-  # path rather than a frontend URL.
-  mkHeadInclude = cfg: name: pkgs.writeText "cgit-head-include-${name}.html" ''
-    ${lib.concatStrings 
-      (builtins.map (stylepath: 
-      "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf stylepath}' />\n"
-    ) cfg.cssFiles)}
-
-    ${cfg.extraHeadInclude}
-
-    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />" else ""}
-  '';
 
   # https://stackoverflow.com/questions/76242980/create-a-derivation-in-nix-to-only-copy-some-files
   # copy a whole assets path into a assets subdir in a deriv (again to later be
   # merged with mkCombinedAssets)
   mkAssetsFolder = cfg: name: pkgs.stdenvNoCC.mkDerivation {
-    name = "cgit-assets-${name}";
+    name = "cgit-themed-${name}-assets";
     src = cfg.assets;
     installPhase = ''
       mkdir -p $out/assets
@@ -65,7 +51,7 @@ let
   # with a single nginx location/root combo. This makes it easier to include
   # arbitrary files with custom CSS and extraHeadInclude
   mkCombinedAssets = cfg: name: pkgs.symlinkJoin {
-    name = "combined-cgit-assets-${name}";
+    name = "cgit-themed-${name}-combined-assets";
     # https://hugosum.com/blog/conditionally-add-values-into-list-or-map-in-nix
     paths = [ ] 
       ++ (builtins.map(cssPath: mkAssetsFile cssPath) cfg.cssFiles)
@@ -74,6 +60,22 @@ let
       ++ (lib.optional (cfg.favicon != null) (mkAssetsFile cfg.favicon))
       ++ (lib.optional (cfg.assets != null) (mkAssetsFolder cfg name));
   };
+
+  # Write the HTML file to be included in <HEAD> of every cgit page. This
+  # doesn't need to go in an assets folder because the cgitrc will take a full
+  # path rather than a frontend URL.
+  mkHeadInclude = cfg: name: pkgs.writeText "cgit-themed-${name}-head-include.html" ''
+    ${lib.concatStrings 
+      (builtins.map (stylepath: 
+      "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf stylepath}' />\n"
+    ) cfg.cssFiles)}
+
+    ${cfg.extraHeadInclude}
+
+    ${if cfg.css != null then "<link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />" else ""}
+  '';
+
+  mkAbout = cfg: name: pkgs.writeText "cgit-themed-${name}-about.html" cfg.aboutHTML;
 in
 {
   options.services.cgit-themed = lib.mkOption {
@@ -86,6 +88,12 @@ in
         {
           options = {
             enable = lib.mkEnableOption "cgit-themed";
+
+            aboutHTML = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "An optional about HTML page for the cgit instance, set as the root-readme in the cgitrc.";
+            };
 
             assets = lib.mkOption {
               type = lib.types.nullOr lib.types.path;
@@ -138,20 +146,14 @@ in
   };
 
   config = lib.mkIf (lib.any (cfg: cfg.enable) (lib.attrValues cfgs)) {
-    # not really sure why the flip and mapAttrs', is this just for convenience
-    # so cfgs can be listed before the function?
-    # services.cgit = lib.flip lib.mapAttrs' cfgs (
-    #   name: cfg:
-    #    
-    # )
-
     services.cgit = lib.mapAttrs (name: cfg: {
       enable = true;
       settings = {
         head-include = "${mkHeadInclude cfg name}";
       }
         // lib.optionalAttrs (cfg.logo != null) { logo = "/assets/${builtins.baseNameOf cfg.logo}"; }
-        // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; };
+        // lib.optionalAttrs (cfg.favicon != null) { favicon = "/assets/${builtins.baseNameOf cfg.favicon}"; }
+        // lib.optionalAttrs (cfg.aboutHTML != null) { root-readme = "${mkAbout cfg name}"; };
     }) cfgs;
 
     services.nginx.virtualHosts = lib.mapAttrs (name: cfg: {
