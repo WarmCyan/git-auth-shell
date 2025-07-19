@@ -56,11 +56,9 @@ let
   # this one doesn't need to go _into_ the assets folder because cgitrc can
   # reference from scratch
   mkHeadInclude = cfg: pkgs.writeText "cgit-head-include.html" ''
-      <meta name="viewport" content="width=device-width initial-scale=1.0" />
+      ${lib.concatStrings (builtins.map (x: "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf x}' />\n") cfg.cgit.css_files)}
 
       <link rel='stylesheet' type='text/css' href='/assets/custom-css.css' />
-
-      ${lib.concatStrings (builtins.map (x: "<link rel='stylesheet' type='text/css' href='/assets/${builtins.baseNameOf x}' />\n") cfg.cgit.css_files)}
 
       ${cfg.cgit.extraHeadInclude}
   '';
