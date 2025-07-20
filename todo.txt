@@ -6,6 +6,7 @@ DONE: license
 DONE: git-user -> gitUser
 TODO: ability to add new ssh-keys through command
 TODO: ability to configure env vars (prob need to override package?) 
-TODO: print error if cmd not recognized
+DONE: print error if cmd not recognized
 DONE: rename to small-git-server
 DONE: does anything break if e.g. logo isn't specified?
+TODO: add tests for incorrect args num

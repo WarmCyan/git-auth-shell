@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# ==============================================================
+# git-auth-shell
+# An expanded git-shell for use as a forced ssh command, allowing basic user
+# authorization and git repo administration commands through a single git user
+# (rather than every user having their own account on the machine itself.)
+#
+# Expects to be used via ssh authorized_keys, recommended key lines:
+# restrict,command="git-auth-shell.sh [USERNAME_FOR_THIS_KEY] \"$SSH_ORIGINAL_COMMAND\"" ssh-rsa AAA...
+#
+# Author: Nathan Martindale
+# License: MIT
+# ==============================================================
+
 USERS=${GIT_AUTH_USERS-${HOME}/gitusers}
 REPOS=${GIT_AUTH_REPOS-${HOME}/gitrepos}
 LOGLOC=${GIT_AUTH_LOG-${HOME}/gitlog.log}
@@ -283,26 +296,62 @@ cmd_word="${cmd_array[0]}"
 if [[ "$cmd_word" == "help" ]]; then
   show_help
 elif [[ "$cmd_word" == "create" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 2 ]]; then
+    logecho "Missing arguments, please use 'create [repo]'"
+    exit 1
+  fi
   create_repo "${cmd_array[1]}"
 elif [[ "$cmd_word" == "rename" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 3 ]]; then
+    logecho "Missing arguments, please use 'rename [repo] [newname]'"
+    exit 1
+  fi
   rename_repo "${cmd_array[1]}" "${cmd_array[2]}"
 elif [[ "$cmd_word" == "delete" ]]; then
-  delete_repo "${cmd_array[1]}" "${cmd_array[2]}"
+  if [[ "${#cmd_array[@]}" -lt 2 ]]; then
+    logecho "Missing arguments, please use 'delete [repo]'"
+    exit 1
+  fi
+  delete_repo "${cmd_array[1]}"
 elif [[ "$cmd_word" == "list-admin" ]]; then
   list_admin
 elif [[ "$cmd_word" == "list-write" ]]; then
   list_write
 elif [[ "$cmd_word" == "list-admins" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 2 ]]; then
+    logecho "Missing arguments, please use 'list-admins [repo]'"
+    exit 1
+  fi
   list_admins "${cmd_array[1]}"
 elif [[ "$cmd_word" == "list-writers" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 2 ]]; then
+    logecho "Missing arguments, please use 'list-writers [repo]'"
+    exit 1
+  fi
   list_writers "${cmd_array[1]}"
 elif [[ "$cmd_word" == "grant-admin" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 3 ]]; then
+    logecho "Missing arguments, please use 'grant-admin [user] [repo]'"
+    exit 1
+  fi
   grant_admin "${cmd_array[1]}" "${cmd_array[2]}"
 elif [[ "$cmd_word" == "grant-write" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 3 ]]; then
+    logecho "Missing arguments, please use 'grant-write [user] [repo]'"
+    exit 1
+  fi
   grant_write "${cmd_array[1]}" "${cmd_array[2]}"
 elif [[ "$cmd_word" == "revoke-admin" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 3 ]]; then
+    logecho "Missing arguments, please use 'revoke-admin [user] [repo]'"
+    exit 1
+  fi
   revoke_admin "${cmd_array[1]}" "${cmd_array[2]}"
 elif [[ "$cmd_word" == "revoke-write" ]]; then
+  if [[ "${#cmd_array[@]}" -lt 3 ]]; then
+    logecho "Missing arguments, please use 'revoke-write [user] [repo]'"
+    exit 1
+  fi
   revoke_write "${cmd_array[1]}" "${cmd_array[2]}"
 
 elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" || "$cmd_word" == "git-upload-archive" ]]; then
@@ -315,4 +364,7 @@ elif [[ "$cmd_word" == "git-receive-pack" || "$cmd_word" == "git-upload-pack" ||
   pushd "${REPOS}" > /dev/null
   git-shell -c "${SSH_ORIGINAL_COMMAND}"
   popd > /dev/null
+else
+  logecho "Command not recognized."
+  show_help
 fi
