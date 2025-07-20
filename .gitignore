@@ -1,2 +1,2 @@
 flake.lock
-tests.log
+**/tests.log

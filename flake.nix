@@ -19,15 +19,13 @@
       let
         pkgs = pkgsFor.${system};
       in {
-        # default = import ./git-auth-shell-pkg.nix { inherit pkgs };
-        git-auth-shell = import ./git-auth-shell-pkg.nix { inherit pkgs; };
+        git-auth-shell = import ./git-auth-shell { inherit pkgs; };
         default = self.packages.${system}.git-auth-shell;
       });
   
     nixosModules = {
       cgit-theme = import ./modules/cgit-theme.nix;
       small-git-server = import ./modules/small-git-server.nix self;
-      # small-git-server = import ./nixos-git-module.nix self;
       default = self.nixosModules.small-git-server;
     };
   };
