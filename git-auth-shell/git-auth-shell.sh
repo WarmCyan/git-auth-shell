@@ -48,11 +48,23 @@ function is_user_writer() {
   return 1
 }
 
-# remove any .. and $ for safety
+# remove any potentially problematic characters for safety
 function sanitize_path() {
   repo=$1
   safe_repo="${repo//../}"
   safe_repo="${repo//\$/}"
+  safe_repo="${repo//\;/}"
+  safe_repo="${repo//\\/}"
+  safe_repo="${repo//\{/}"
+  safe_repo="${repo//\}/}"
+  safe_repo="${repo//\(/}"
+  safe_repo="${repo//\)/}"
+  safe_repo="${repo//\`/}"
+  safe_repo="${repo//\[/}"
+  safe_repo="${repo//\]/}"
+  safe_repo="${repo//\,/}"
+  safe_repo="${repo//\n/}"
+  safe_repo="${repo//\\n/}"
   echo "$safe_repo"
 }
 

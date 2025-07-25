@@ -1,4 +1,4 @@
-TODO: expand path sanitization (`, {, etc.)
+DONE: expand path sanitization (`, {, etc.)
 TODO: expand on readme
 DONE: custom cgit css/logo overrides
 DONE: tie in optional additional settings
