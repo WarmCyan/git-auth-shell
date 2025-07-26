@@ -43,3 +43,12 @@ nginx virtual host that points to it.
     };
 }
 ```
+
+# `small-git-server`
+
+This nixos module adds a `small-git-server` service, which when enabled adds a
+git user and allows declaratively specifying SSH authorized keys and the
+associated "usernames" to use for each with the accompanying `git-auth-shell`
+tool. It also allows setting up an associated cgit server, and contains all the
+same options as the `cgit-theme` module above to make it easier to define the
+theme all in one place. It sets several default options for the cgit server.

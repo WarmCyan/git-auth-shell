@@ -10,3 +10,7 @@ DONE: print error if cmd not recognized
 DONE: rename to small-git-server
 DONE: does anything break if e.g. logo isn't specified?
 TODO: add tests for incorrect args num
+TODO: restrict allowTcpForwarding for git user account? https://superuser.com/questions/229743/howto-disable-ssh-local-port-forwarding/829356#829356
+TODO: test to ensure it doesn't add a repo to a user's admins if they try to create a repo that already exists
+BUG: user folder doesn't get created until first time _they_ run a command. If a user is referenced that doesn't exist, ensure their folder
+BUG: delete command with subfolder possibly not working? "sed: can't find label for jump to `estrepo$/d`
